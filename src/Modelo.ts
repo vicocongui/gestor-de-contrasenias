@@ -1,5 +1,6 @@
 import * as fs from 'fs';
 import CryptoJS from 'crypto-js';
+import axios from 'axios';
 
 export interface Cuenta {
     usuario : string;
@@ -7,8 +8,23 @@ export interface Cuenta {
 }
 
 export interface SitioWeb{
+    nombre: string;
     cuentas: Cuenta[];
 }
+
+// Defino el tipo de retorno para indicar si la contraseña fue encontrada (Para evitar devolver null)
+type ResultadoBusquedaContrasena<T> =
+        | { tipo: "exito", encontrado: T }
+        | { tipo: "no_encontrado" }
+
+    function formatearResultado<T>(resultado: ResultadoBusquedaContrasena<T>): string {
+        if (resultado.tipo === "exito")
+            return `Se encontro a ${resultado.encontrado}`;
+        else
+            return `No se encontro nada`;
+    }
+
+
 
 //  CRUD
 function agregarCuenta(nombreSitio: string, usuario: string, contraseña: string): void {
@@ -33,12 +49,12 @@ function borrarCuenta(nombreSitio: string, usuario: string): void {
     // No es necesario devolver ningún valor explícito.
 }
 
-function obtenerContraseña(nombreSitio: string, usuario: string, contraseñaMaestra: string): string | null {
+function obtenerContraseña(nombreSitio: string, usuario: string, contraseñaMaestra: string): ResultadoBusquedaContrasena<string> {
     // Desencriptar la base de datos utilizando la contraseña maestra
     // Buscar el sitio web en la base de datos
     // Buscar la cuenta dentro del sitio web
     // Devolver la contraseña si se encuentra, de lo contrario, devolver null
-    return null; // Devuelve null cuando no se encuentra la contraseña
+    return { tipo: "no_encontrado" }; // Devuelve "no encontrado" cuando no se encuentra
 }
 //Encriptar archivo de base de datos de forma segura
 const secretKey = 'tu_clave_secreta';
@@ -89,4 +105,53 @@ const generarContraseniaSegura = (): string => {
         .join('');
 };
 
+//mostrar un listado de cuentas
 
+function mostrarListadoCuentas(contraseñaMaestra: string): void {
+        // Leer y desencriptar la base de datos utilizando la contraseña maestra
+        const contenidoCifrado = fs.readFileSync(rutaArchivo, 'utf-8');
+        const contenidoDesencriptado = CryptoJS.AES.decrypt(contenidoCifrado, contraseñaMaestra).toString(CryptoJS.enc.Utf8);
+        const baseDatos: SitioWeb[] = JSON.parse(contenidoDesencriptado);
+
+        // Mostrar listado de cuentas por sitio web
+        // Manejar errores al mostrar el listado de cuentas
+}
+
+function mostrarContraseña(usuario: string, contraseñaMaestra: string): ResultadoBusquedaContrasena<string> {
+    try {
+        // Leer y desencriptar la base de datos utilizando la contraseña maestra
+        const contenidoCifrado = fs.readFileSync(rutaArchivo, 'utf-8');
+        const contenidoDesencriptado = CryptoJS.AES.decrypt(contenidoCifrado, contraseñaMaestra).toString(CryptoJS.enc.Utf8);
+        const baseDatos: SitioWeb[] = JSON.parse(contenidoDesencriptado);
+
+        // Buscar la contraseña del usuario en todos los sitios web
+        // Devolver la contraseña encontrada o "no encontrado" si no se encuentra
+
+        return contraseñaEncontrada ? { tipo: "exito", encontrado: contraseñaEncontrada } : { tipo: "no_encontrado" };
+
+    } catch (error) {
+        console.error('Error al mostrar la contraseña:', error);
+        return { tipo: "no_encontrado" }; // Devuelve "no encontrado" en caso de error
+    }
+}
+
+//have i been pwoned?
+async function verificarContraseñaComprometida(contraseña: string): Promise<boolean> {
+    try {
+        // Definir el nombre de tu aplicación para el encabezado del usuario
+        const nombreAplicacion = "SecurePassManager";
+
+        // Llamar a la API de Have I Been Pwned
+        const response = await axios.get(`https://haveibeenpwned.com/api/v3/pwnedpassword/${contraseña}`, {
+            headers: {
+                'user-agent': nombreAplicacion
+            }
+        });
+
+        // Verificar si la contraseña está comprometida
+        return response.status === 200;
+    } catch (error) {
+        console.error('Error al verificar la contraseña comprometida:', error);
+        return false; // En caso de error, asumimos que la contraseña no está comprometida
+    }
+}

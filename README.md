@@ -55,6 +55,8 @@ Tras analizar diversas opciones y considerando las limitaciones de algunos sitio
 
 Esta decisión se basa en garantizar la seguridad de las contraseñas generadas, minimizando el riesgo de ataques de fuerza bruta y aumentando la complejidad de las mismas. Además, al evitar caracteres especiales, se reduce la posibilidad de problemas de compatibilidad con algunos sitios web que podrían no aceptar ciertos caracteres.
 
+fuente: https://support.microsoft.com
+
 ## Función `generarContraseniaSegura`
 
 La función `generarContraseniaSegura` tiene como objetivo generar contraseñas seguras que cumplan con los estándares de seguridad establecidos por el equipo. A continuación, se detalla su funcionamiento:
@@ -112,6 +114,22 @@ La API v3 de HIBP fue elegida por su amplia cobertura de datos de brechas de seg
 
 En el contexto de la seguridad informática, las "brechas" se refieren a eventos en los que se comprometen datos sensibles, como contraseñas o información personal, debido a vulnerabilidades en el sistema. Por otro lado, los "pastes" son datos que se publican en internet, que pueden contener información comprometida en brechas de seguridad o recopilada ilegalmente.
 
+## Función `verificarContraseñaComprometida`
+
+La función `verificarContraseñaComprometida` tiene como objetivo verificar si una contraseña dada ha sido comprometida en una brecha de seguridad mediante la API de Have I Been Pwned (HIBP).
+
+1. **Definición de parámetros**: La función toma un parámetro de entrada `contraseña` de tipo `string`, que representa la contraseña que se va a verificar.
+
+2. **Llamada a la API de Have I Been Pwned**: Se utiliza la librería Axios para realizar una solicitud GET a la API de Have I Been Pwned, específicamente al endpoint `https://haveibeenpwned.com/api/v3/pwnedpassword/{contraseña}`. Se incluye el nombre de la aplicación en el encabezado del usuario (`user-agent`) para identificar la fuente de la solicitud (necesario).
+
+3. **Verificación de la respuesta**: Se verifica si la respuesta de la API tiene un estado (status) igual a 200, lo que indica que la contraseña ha sido encontrada en la base de datos de contraseñas comprometidas.
+
+4. **Retorno del resultado**: La función devuelve un valor booleano `true` si la contraseña está comprometida y `false` si no lo está.
+
+5. **Manejo de errores**: Se utiliza un bloque try-catch para manejar cualquier error que pueda ocurrir durante la llamada a la API. En caso de error, se muestra un mensaje de error en la consola y se devuelve `false`.
+
+Esta función proporciona una manera rápida y sencilla de verificar la seguridad de una contraseña frente a posibles brechas de seguridad en internet.
+
 ### Elección de la Implementación
 
 La elección de la API v3 de Have I Been Pwned (HIBP) se basa en su amplia cobertura de datos de brechas de seguridad en internet, su reputación consolidada como fuente confiable de información, su facilidad de uso y su constante actualización con nuevas violaciones de datos. Esta implementación ofrece una sólida capacidad para detectar y responder a posibles violaciones de seguridad, mejorando así la seguridad y protección del usuario de la aplicación.
@@ -142,3 +160,8 @@ Para garantizar la seguridad de los datos almacenados, implementé una función 
 Para generar contraseñas seguras, desarrollamos una función `generarContraseniaSegura`. Esta función crea contraseñas aleatorias que cumplen con los estándares de seguridad establecidos por el equipo, asegurando una combinación de caracteres alfanuméricos.
 
 Estas decisiones de modelado se basaron en la necesidad de garantizar la seguridad de las credenciales de los usuarios y la integridad de los datos almacenados.
+
+**Verificación de contraseñas:**
+Para implementar la verificación de contraseñas, decidimos utilizar un proceso de cron. Este proceso ejecutaría una tarea programada cada cierto tiempo (cada día) para verificar las contraseñas del usuario contra la base de datos de contraseñas comprometidas con al API haveibeenpwned.
+
+Además, el uso de un proceso de cron permite tomar medidasen caso de que se detecten contraseñas comprometidas. La aplicación debería notificar al usuario por gmail cuando una contraseña se encuentre comprometida
