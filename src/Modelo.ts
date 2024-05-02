@@ -33,6 +33,13 @@ function borrarCuenta(nombreSitio: string, usuario: string): void {
     // No es necesario devolver ningún valor explícito.
 }
 
+function obtenerContraseña(nombreSitio: string, usuario: string, contraseñaMaestra: string): string | null {
+    // Desencriptar la base de datos utilizando la contraseña maestra
+    // Buscar el sitio web en la base de datos
+    // Buscar la cuenta dentro del sitio web
+    // Devolver la contraseña si se encuentra, de lo contrario, devolver null
+    return null; // Devuelve null cuando no se encuentra la contraseña
+}
 //Encriptar archivo de base de datos de forma segura
 const secretKey = 'tu_clave_secreta';
 
@@ -55,9 +62,16 @@ function encriptarArchivo(rutaArchivo: string, contraseña: string): void {
 
 // Ejemplo de uso
 const rutaArchivo = 'archivo.txt';
-const contraseña = 'mi_contraseña_secreta';
+const contraseñaMaestra = 'mi_contraseña_maestra';
 
-encriptarArchivo(rutaArchivo, contraseña);
+// Desencriptar la base de datos antes de acceder a las contraseñas
+// Ejemplo de cómo obtener la contraseña de una cuenta específica
+const contraseñaCuenta = obtenerContraseña('Ejemplo', 'usuario1', contraseñaMaestra);
+if (contraseñaCuenta) {
+    console.log(`La contraseña de la cuenta es: ${contraseñaCuenta}`);
+} else {
+    console.log('La cuenta no se encuentra o la contraseña maestra es incorrecta.');
+}
 
 //generar contraseña segura
 const generarContraseniaSegura = (): string => {
