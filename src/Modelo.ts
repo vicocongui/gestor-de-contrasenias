@@ -1,16 +1,20 @@
 import * as fs from 'fs';
 import CryptoJS from 'crypto-js';
 import axios from 'axios';
+import { sqlite3 } from 'sqlite3';
+
 
 export interface Cuenta {
     usuario : string;
     contraseña : string;
+    idSitioWeb : number;
 }
 
 export interface SitioWeb{
     nombre: string;
     cuentas: Cuenta[];
 }
+
 
 // Defino el tipo de retorno para indicar si la contraseña fue encontrada (Para evitar devolver null)
 type ResultadoBusquedaContrasena<T> =
@@ -24,16 +28,27 @@ type ResultadoBusquedaContrasena<T> =
             return `No se encontro nada`;
     }
 
-
+async function abrirConexion() {
+    return open({
+        filename: 'db.sqlite',
+        driver: sqlite3.Database
+    })
+}
 
 //  CRUD
-function agregarCuenta(nombreSitio: string, usuario: string, contraseña: string): void {
+export async function agregarCuenta(idSitioWeb: number, usuario: string, contraseña: string): Promise<Cuenta> {
     // Comprobamos si el sitio web ya existe en nuestra base de datos
     // Si el sitio web ya existe, agregamos la nueva cuenta a ese sitio.
     // De lo contrario, creamos un nuevo sitio web con la nueva cuenta.
+    const db = await abrirConexion();
+    
+    const query = `INSERT INTO Cuenta (idSitioWeb, usuario, contraseña) VALUES ('${idSitioWeb}', ${usuario}, ${contraseña})`;
+    await db.run(query);
+
+    return { idSitioWeb, usuario, contraseña };
 }
 
-function actualizarCuenta(nombreSitio: string, usuario: string, nuevaContraseña: string): void {
+export async function actualizarCuenta(nombreSitio: string, usuario: string, nuevaContraseña: string): void {
     // Buscamos el sitio web en nuestra base de datos
     // Si el sitio web existe y la cuenta también,
     // actualizamos la contraseña de esa cuenta.
@@ -41,7 +56,7 @@ function actualizarCuenta(nombreSitio: string, usuario: string, nuevaContraseña
     // No es necesario devolver ningún valor explícito.
 }
 
-function borrarCuenta(nombreSitio: string, usuario: string): void {
+export async function borrarCuenta(nombreSitio: string, usuario: string): void {
     // Encontramos el índice del sitio web en nuestra base de datos
     // Si se encuentra el sitio web,
     // buscamos la cuenta dentro de ese sitio y la eliminamos.
@@ -49,7 +64,7 @@ function borrarCuenta(nombreSitio: string, usuario: string): void {
     // No es necesario devolver ningún valor explícito.
 }
 
-function obtenerContraseña(nombreSitio: string, usuario: string, contraseñaMaestra: string): ResultadoBusquedaContrasena<string> {
+export async function obtenerContraseña(nombreSitio: string, usuario: string, contraseñaMaestra: string): ResultadoBusquedaContrasena<string> {
     // Desencriptar la base de datos utilizando la contraseña maestra
     // Buscar el sitio web en la base de datos
     // Buscar la cuenta dentro del sitio web
@@ -59,7 +74,7 @@ function obtenerContraseña(nombreSitio: string, usuario: string, contraseñaMae
 //Encriptar archivo de base de datos de forma segura
 const secretKey = 'tu_clave_secreta';
 
-function encriptarArchivo(rutaArchivo: string, contraseña: string): void {
+export async function encriptarArchivo(rutaArchivo: string, contraseña: string): void {
     try {
         // Leer el contenido del archivo
         const contenido = fs.readFileSync(rutaArchivo, 'utf-8');
