@@ -1,27 +1,28 @@
 import * as fs from 'fs';
 import CryptoJS from 'crypto-js';
 import axios from 'axios';
-import { sqlite3 } from 'sqlite3';
+import  sqlite3  from 'sqlite3';
+import { open } from 'sqlite';
 
 
 export interface Cuenta {
     usuario : string;
-    contraseña : string;
-    idSitioWeb : number;
+    contrasenia : string;
+    nombreWeb : string;
 }
 
-export interface SitioWeb{
+/*export interface SitioWeb{
     nombre: string;
     cuentas: Cuenta[];
-}
+}*/ //hicimos modificaciones en el modelado ya que nos pareció redundante hacer otra interface únicamente para asociar la cuenta del usuario con el nombre del sitio web
 
 
 // Defino el tipo de retorno para indicar si la contraseña fue encontrada (Para evitar devolver null)
-type ResultadoBusquedaContrasena<T> =
+type ResultadoBusquedaContrasenia<T> =
         | { tipo: "exito", encontrado: T }
         | { tipo: "no_encontrado" }
 
-    function formatearResultado<T>(resultado: ResultadoBusquedaContrasena<T>): string {
+    function formatearResultado<T>(resultado: ResultadoBusquedaContrasenia<T>): string {
         if (resultado.tipo === "exito")
             return `Se encontro a ${resultado.encontrado}`;
         else
@@ -36,19 +37,19 @@ async function abrirConexion() {
 }
 
 //  CRUD
-export async function agregarCuenta(idSitioWeb: number, usuario: string, contraseña: string): Promise<Cuenta> {
+export async function agregarCuenta(nombreWeb: string, usuario: string, contrasenia: string): Promise<Cuenta> {
     // Comprobamos si el sitio web ya existe en nuestra base de datos
     // Si el sitio web ya existe, agregamos la nueva cuenta a ese sitio.
     // De lo contrario, creamos un nuevo sitio web con la nueva cuenta.
     const db = await abrirConexion();
     
-    const query = `INSERT INTO Cuenta (idSitioWeb, usuario, contraseña) VALUES ('${idSitioWeb}', ${usuario}, ${contraseña})`;
+    const query = `INSERT INTO Cuenta (nombreWeb, usuario, contrasenia) VALUES ('${nombreWeb}', ${usuario}, ${contrasenia})`;
     await db.run(query);
 
-    return { idSitioWeb, usuario, contraseña };
+    return { nombreWeb, usuario, contrasenia };
 }
 
-export async function actualizarCuenta(nombreSitio: string, usuario: string, nuevaContraseña: string): void {
+export async function actualizarCuenta(nombreSitio: string, usuario: string, nuevaContrasenia: string): Promise<void> {
     // Buscamos el sitio web en nuestra base de datos
     // Si el sitio web existe y la cuenta también,
     // actualizamos la contraseña de esa cuenta.
@@ -56,15 +57,15 @@ export async function actualizarCuenta(nombreSitio: string, usuario: string, nue
     // No es necesario devolver ningún valor explícito.
 }
 
-export async function borrarCuenta(nombreSitio: string, usuario: string): void {
+export async function borrarCuenta(nombreSitio: string, usuario: string): Promise<void> {
     // Encontramos el índice del sitio web en nuestra base de datos
     // Si se encuentra el sitio web,
     // buscamos la cuenta dentro de ese sitio y la eliminamos.
     // Si no se encuentra el sitio web o la cuenta, no se realiza ninguna acción.
     // No es necesario devolver ningún valor explícito.
 }
-
-export async function obtenerContraseña(nombreSitio: string, usuario: string, contraseñaMaestra: string): ResultadoBusquedaContrasena<string> {
+//async?
+export function obtenerContrasenia(nombreSitio: string, usuario: string, contraseniaMaestra: string): ResultadoBusquedaContrasenia<string> {
     // Desencriptar la base de datos utilizando la contraseña maestra
     // Buscar el sitio web en la base de datos
     // Buscar la cuenta dentro del sitio web
@@ -74,13 +75,13 @@ export async function obtenerContraseña(nombreSitio: string, usuario: string, c
 //Encriptar archivo de base de datos de forma segura
 const secretKey = 'tu_clave_secreta';
 
-export async function encriptarArchivo(rutaArchivo: string, contraseña: string): void {
+export async function encriptarArchivo(rutaArchivo: string, contrasenia: string): Promise<void> {
     try {
         // Leer el contenido del archivo
         const contenido = fs.readFileSync(rutaArchivo, 'utf-8');
 
         // Cifrar el contenido del archivo utilizando AES
-        const contenidoCifrado = CryptoJS.AES.encrypt(contenido, contraseña).toString();
+        const contenidoCifrado = CryptoJS.AES.encrypt(contenido, contrasenia).toString();
 
         // Escribir el contenido cifrado en el mismo archivo
         fs.writeFileSync(rutaArchivo, contenidoCifrado);
@@ -93,13 +94,13 @@ export async function encriptarArchivo(rutaArchivo: string, contraseña: string)
 
 // Ejemplo de uso
 const rutaArchivo = 'archivo.txt';
-const contraseñaMaestra = 'mi_contraseña_maestra';
+const contraseniaMaestra = 'mi_contrasenia_maestra';
 
 // Desencriptar la base de datos antes de acceder a las contraseñas
 // Ejemplo de cómo obtener la contraseña de una cuenta específica
-const contraseñaCuenta = obtenerContraseña('Ejemplo', 'usuario1', contraseñaMaestra);
-if (contraseñaCuenta) {
-    console.log(`La contraseña de la cuenta es: ${contraseñaCuenta}`);
+const contraseniaCuenta = obtenerContrasenia('Ejemplo', 'usuario1', contraseniaMaestra);
+if (contraseniaCuenta) {
+    console.log(`La contraseña de la cuenta es: ${contraseniaCuenta}`);
 } else {
     console.log('La cuenta no se encuentra o la contraseña maestra es incorrecta.');
 }
@@ -122,27 +123,30 @@ const generarContraseniaSegura = (): string => {
 
 //mostrar un listado de cuentas
 
-function mostrarListadoCuentas(contraseñaMaestra: string): void {
+export async function mostrarListadoCuentas(contraseniaMaestra: string): Promise<void> {
         // Leer y desencriptar la base de datos utilizando la contraseña maestra
         const contenidoCifrado = fs.readFileSync(rutaArchivo, 'utf-8');
-        const contenidoDesencriptado = CryptoJS.AES.decrypt(contenidoCifrado, contraseñaMaestra).toString(CryptoJS.enc.Utf8);
-        const baseDatos: SitioWeb[] = JSON.parse(contenidoDesencriptado);
+        const contenidoDesencriptado = CryptoJS.AES.decrypt(contenidoCifrado, contraseniaMaestra).toString(CryptoJS.enc.Utf8);
+        //AYUDA
+        //const baseDatos: SitioWeb[] = JSON.parse(contenidoDesencriptado);
 
         // Mostrar listado de cuentas por sitio web
         // Manejar errores al mostrar el listado de cuentas
 }
 
-function mostrarContraseña(usuario: string, contraseñaMaestra: string): ResultadoBusquedaContrasena<string> {
+function mostrarContrasenia(usuario: string, contraseniaMaestra: string): ResultadoBusquedaContrasenia<string> {
     try {
         // Leer y desencriptar la base de datos utilizando la contraseña maestra
         const contenidoCifrado = fs.readFileSync(rutaArchivo, 'utf-8');
-        const contenidoDesencriptado = CryptoJS.AES.decrypt(contenidoCifrado, contraseñaMaestra).toString(CryptoJS.enc.Utf8);
-        const baseDatos: SitioWeb[] = JSON.parse(contenidoDesencriptado);
+        const contenidoDesencriptado = CryptoJS.AES.decrypt(contenidoCifrado, contraseniaMaestra).toString(CryptoJS.enc.Utf8);
+        //AYUDA
+        //const baseDatos: SitioWeb[] = JSON.parse(contenidoDesencriptado);
 
         // Buscar la contraseña del usuario en todos los sitios web
         // Devolver la contraseña encontrada o "no encontrado" si no se encuentra
-
-        return contraseñaEncontrada ? { tipo: "exito", encontrado: contraseñaEncontrada } : { tipo: "no_encontrado" };
+        
+        //AYUDA
+        return /*contraseniaEncontrada ? { tipo: "exito", encontrado: /*contraseniaEncontrada } : */{ tipo: "no_encontrado" };
 
     } catch (error) {
         console.error('Error al mostrar la contraseña:', error);
@@ -151,13 +155,13 @@ function mostrarContraseña(usuario: string, contraseñaMaestra: string): Result
 }
 
 //have i been pwoned?
-async function verificarContraseñaComprometida(contraseña: string): Promise<boolean> {
+async function verificarContraseniaComprometida(contrasenia: string): Promise<boolean> {
     try {
         // Definir el nombre de tu aplicación para el encabezado del usuario
         const nombreAplicacion = "SecurePassManager";
 
         // Llamar a la API de Have I Been Pwned
-        const response = await axios.get(`https://haveibeenpwned.com/api/v3/pwnedpassword/${contraseña}`, {
+        const response = await axios.get(`https://haveibeenpwned.com/api/v3/pwnedpassword/${contrasenia}`, {
             headers: {
                 'user-agent': nombreAplicacion
             }
