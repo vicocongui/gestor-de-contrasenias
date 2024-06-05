@@ -73,15 +73,15 @@ export function obtenerContrasenia(nombreSitio: string, usuario: string, contras
     return { tipo: "no_encontrado" }; // Devuelve "no encontrado" cuando no se encuentra
 }
 //Encriptar archivo de base de datos de forma segura
-const secretKey = 'tu_clave_secreta';
+const secretKey = 'alagrandelepusecuca';
 
-export async function encriptarArchivo(rutaArchivo: string, contrasenia: string): Promise<void> {
+export async function encriptarArchivo(rutaArchivo: string, contrasenia_maestra: string): Promise<void> {
     try {
         // Leer el contenido del archivo
         const contenido = fs.readFileSync(rutaArchivo, 'utf-8');
 
         // Cifrar el contenido del archivo utilizando AES
-        const contenidoCifrado = CryptoJS.AES.encrypt(contenido, contrasenia).toString();
+        const contenidoCifrado = CryptoJS.AES.encrypt(contenido, contrasenia_maestra).toString();
 
         // Escribir el contenido cifrado en el mismo archivo
         fs.writeFileSync(rutaArchivo, contenidoCifrado);
