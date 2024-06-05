@@ -106,7 +106,7 @@ if (contraseniaCuenta) {
 }
 
 //generar contraseña segura
-const generarContraseniaSegura = (): string => {
+export const generarContraseniaSegura = (): string => {
     const caracteresRegEx = /[A-Za-z0-9]/;
     const longitud = 16;
 
