@@ -1,20 +1,17 @@
 import express, { Express, Request, Response } from "express";
 import dotenv from "dotenv";
-import { mostrarListadoCuentas, agregarCuenta, borrarCuenta, actualizarCuenta, generarContraseniaSegura } from "./Modelo";
+import { mostrarListadoCuentas, agregarCuenta, borrarCuenta, actualizarCuenta, generarContraseniaSegura, consultarListado } from "./Modelo";
 dotenv.config();
 
 const port = process.env.PORT || 3000;
-const app: Express = express();
 
-const obtenerDatosApi = () => {
-    return 23
-}
+const app: Express = express();
 
 // Middleware para parsear el cuerpo de las solicitudes en formato JSON
 app.use(express.json());
 
-//mostrar toda la informacion del usuario que lo solicita.
-app.get("/v1/listado", (req: Request, res: Response) => {
+/*mostrar toda la informacion del usuario que lo solicita.
+app.post("/v1/listado", (req: Request, res: Response) => {
     const miNuevoPass = generarContraseniaSegura();
     const usuarioDePrueba = {
         nombre: "nombre",
@@ -24,13 +21,47 @@ app.get("/v1/listado", (req: Request, res: Response) => {
     };
 
     res.json(usuarioDePrueba);
+});*/
+
+app.post("/v1/listado", async (req: Request, res: Response) => {
+    try {
+        res.send(await consultarListado());
+    } catch (error) {
+        console.log("se rompido el post base de datos");
+    }
 });
 
 //crear la contraseña que requiere el usuario
-app.post ("/v1/usuario/new", (req: Request, res: Response) =>{
-    obtenerDatosApi();
+/*app.post ("/v1/listado/add-account", async (req: Request, res: Response) =>{
+try {
+        const nombreWeb = req.body.nombreWeb;
+        const usuario = req.body.usuario;
+        const contrasenia = req.body.contrasenia;
+        res.send(await agregarCuenta(usuario, contrasenia, nombreWeb));
+    } catch (error) {
+        console.log("se rompio");
+    }
+});*/
 
-    res.send("Hola mundo, it's me con ganas de llorar pero con /usuario/new!");
+app.post("/v1/listado/add-account", async (req: Request, res: Response) => {
+    console.log ('encabezados de la solicitud:', req.headers);
+    console.log('cuerpo de la solicitud:', req.body );
+    
+    const { usuario, nombreWeb } = req.body;
+    try {
+       
+        console.log(usuario, nombreWeb)
+
+        if (!usuario || !nombreWeb) {
+            return res.status(400).send({ error: 'Todos los campos son obligatorios' });
+        }
+
+        const nuevaCuenta = await agregarCuenta(usuario, generarContraseniaSegura(), nombreWeb);
+        res.status(201).send(nuevaCuenta);
+    } catch (error) {
+        console.error('Error en el controlador:', error);
+        res.status(500).send({ error: 'Error al agregar la cuenta' });
+    }
 });
 
 //actualizar la contraseña

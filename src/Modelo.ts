@@ -37,16 +37,40 @@ async function abrirConexion() {
 }
 
 //  CRUD
+/*
+
 export async function agregarCuenta(nombreWeb: string, usuario: string, contrasenia: string): Promise<Cuenta> {
     // Comprobamos si el sitio web ya existe en nuestra base de datos
     // Si el sitio web ya existe, agregamos la nueva cuenta a ese sitio.
     // De lo contrario, creamos un nuevo sitio web con la nueva cuenta.
-    const db = await abrirConexion();
+    const db = await abrirConexion(); // cada vez que nos queramos comunicar con la base de datos abrimos la conexion.
     
-    const query = `INSERT INTO Cuenta (nombreWeb, usuario, contrasenia) VALUES ('${nombreWeb}', ${usuario}, ${contrasenia})`;
+    const query = `INSERT INTO Cuenta (usuario, contrasenia, nombreWeb) VALUES (${usuario}, ${contrasenia}, ${nombreWeb})`;
     await db.run(query);
 
     return { nombreWeb, usuario, contrasenia };
+}
+*/
+
+export async function agregarCuenta(usuario: string, contrasenia: string, nombreWeb: string): Promise<Cuenta> {
+    const db = await abrirConexion(); // Asegúrate de que esta función maneja correctamente la conexión.
+
+    // Utilizar sentencias preparadas para prevenir inyección SQL
+    const query = `INSERT INTO Cuenta (usuario, contrasenia, nombreWeb) VALUES (?, ?, ?)`;
+    await db.run(query, [usuario, contrasenia, nombreWeb]); // Usar parámetros en lugar de interpolación directa
+
+    db.close(); // No olvides cerrar la conexión
+    return { usuario, contrasenia, nombreWeb };
+}
+
+export async function consultarListado(): Promise<Cuenta[]> {
+    // Arma un Listado que contiene todas las ciudades en la base de datos
+    const db = await abrirConexion();
+    //desencriptar la base de datos --> desencriptarBase();
+    const cuentas: Cuenta[] = await db.all<Cuenta[]>('SELECT * FROM Cuenta');
+    //encriptarBase();
+    console.log(cuentas);
+    return cuentas;
 }
 
 export async function actualizarCuenta(nombreSitio: string, usuario: string, nuevaContrasenia: string): Promise<void> {
@@ -174,3 +198,29 @@ async function verificarContraseniaComprometida(contrasenia: string): Promise<bo
         return false; // En caso de error, asumimos que la contraseña no está comprometida
     }
 }
+
+/*
+async function testPassword() {
+
+    const data = { 'usuario':"pepetest", 'nombreWeb':"instagram.com" };
+
+    fetch('http://localhost:3000/v1/listado/add-account', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data)
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log('Éxito:', data);
+        console.log('Cuenta agregada con éxito');
+    })
+    .catch((error) => {
+        console.error('Error:', error);
+        console.log('Error al agregar la cuenta');
+    });
+}
+
+testPassword();*/
+    
