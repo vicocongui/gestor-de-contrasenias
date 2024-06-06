@@ -1,6 +1,6 @@
 import express, { Express, Request, Response } from "express";
 import dotenv from "dotenv";
-import { mostrarListadoCuentas, agregarCuenta, actualizarCuenta, generarContraseniaSegura, consultarListado } from "./Modelo";
+import { mostrarListadoCuentas, agregarCuenta, actualizarCuenta, generarContraseniaSegura, consultarListado, cifrarBaseDeDatos, descifrarBaseDeDatos } from "./Modelo";
 dotenv.config();
 
 const port = process.env.PORT || 3000;
@@ -9,6 +9,31 @@ const app: Express = express();
 
 // Middleware para parsear el cuerpo de las solicitudes en formato JSON
 app.use(express.json());
+
+// Endpoint para descifrar la base de datos
+app.post("/admin/descifrar", async (req: Request, res: Response) => {
+    const { clave } = req.body;
+    try {
+        await descifrarBaseDeDatos(clave);
+        res.status(200).send({ message: "Base de datos descifrada con éxito." });
+    } catch (error) {
+        console.error('Error al descifrar la base de datos:', error);
+        res.status(500).send({ error: 'Error al descifrar la base de datos' });
+    }
+});
+
+// Endpoint para cifrar la base de datos
+app.post("/admin/cifrar", async (req: Request, res: Response) => {
+    const { clave } = req.body;
+    try {
+        await cifrarBaseDeDatos(clave);
+        res.status(200).send({ message: "Base de datos cifrada con éxito." });
+    } catch (error) {
+        console.error('Error al cifrar la base de datos:', error);
+        res.status(500).send({ error: 'Error al cifrar la base de datos' });
+    }
+});
+
 
 //mostrar toda la informacion del usuario que lo solicita.
 app.post("/v1/listado", async (req: Request, res: Response) => {

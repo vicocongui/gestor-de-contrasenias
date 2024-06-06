@@ -16,6 +16,8 @@ export interface Cuenta {
     cuentas: Cuenta[];
 }*/ //hicimos modificaciones en el modelado ya que nos pareció redundante hacer otra interface únicamente para asociar la cuenta del usuario con el nombre del sitio web
 
+const secretKey = 'alagrandelepusecuca';
+
 
 // Defino el tipo de retorno para indicar si la contraseña fue encontrada (Para evitar devolver null)
 type ResultadoBusquedaContrasenia<T> =
@@ -37,6 +39,23 @@ async function abrirConexion() {
 }
 
 //  CRUD
+
+export async function cifrarBaseDeDatos(clave: string = secretKey) {
+    const contenido = fs.readFileSync('db.sqlite', 'utf8');
+    const contenidoCifrado = CryptoJS.AES.encrypt(contenido, clave).toString();
+    fs.writeFileSync('db.encrypted', contenidoCifrado);
+    fs.unlinkSync('db.sqlite'); // Asegura que el archivo sin cifrar no permanezca
+}
+
+
+export async function descifrarBaseDeDatos(clave: string = secretKey) {
+    const contenidoCifrado = fs.readFileSync('db.encrypted', 'utf8');
+    const bytes = CryptoJS.AES.decrypt(contenidoCifrado, clave);
+    const contenidoDescifrado = bytes.toString(CryptoJS.enc.Utf8);
+    fs.writeFileSync('db.sqlite', contenidoDescifrado);
+}
+
+
 export async function agregarCuenta(usuario: string, contrasenia: string, nombreWeb: string): Promise<Cuenta> {
     const db = await abrirConexion(); // Asegúrate de que esta función maneja correctamente la conexión.
 
@@ -57,8 +76,6 @@ export async function consultarListado(): Promise<Cuenta[]> {
     console.log(cuentas);
     return cuentas;
 }
-
-
 
 export async function actualizarCuenta(nombreWeb: string, usuario: string, nuevaContrasenia: string): Promise<void> {
      // Buscamos el sitio web en nuestra base de datos
@@ -84,6 +101,7 @@ export async function borrarCuenta(nombreWeb: string, usuario: string): Promise<
 }*/
 
 //ENCRIPTACION DB
+
 export async function encriptarArchivo(rutaArchivo: string, contrasenia_maestra: string): Promise<void> {
     try {
         // Leer el contenido del archivo
@@ -102,15 +120,20 @@ export async function encriptarArchivo(rutaArchivo: string, contrasenia_maestra:
 }
 
 // DESENCRIPTAR DB CON CONTRASEÑA MAESTRA async?
-export function obtenerContrasenia(nombreWeb: string, usuario: string, contraseniaMaestra: string): ResultadoBusquedaContrasenia<string> {
+export async function obtenerContrasenia(nombreWeb: string, usuario: string, contraseniaMaestra: string): Promise<ResultadoBusquedaContrasenia<string>> {
     // Desencriptar la base de datos utilizando la contraseña maestra
     // Buscar el sitio web en la base de datos
     // Buscar la cuenta dentro del sitio web
     // Devolver la contraseña si se encuentra, de lo contrario, devolver null
+    try{
+
+    }catch (error){
+        
+    }
     return { tipo: "no_encontrado" }; // Devuelve "no encontrado" cuando no se encuentra
 }
 //Encriptar archivo de base de datos de forma segura
-const secretKey = 'alagrandelepusecuca';
+
 
 // Ejemplo de uso
 const rutaArchivo = 'archivo.txt';
