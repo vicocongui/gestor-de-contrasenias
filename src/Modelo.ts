@@ -73,23 +73,32 @@ export async function consultarListado(): Promise<Cuenta[]> {
     return cuentas;
 }
 
-export async function actualizarCuenta(nombreSitio: string, usuario: string, nuevaContrasenia: string): Promise<void> {
-    // Buscamos el sitio web en nuestra base de datos
+
+ // Buscamos el sitio web en nuestra base de datos
     // Si el sitio web existe y la cuenta también,
     // actualizamos la contraseña de esa cuenta.
     // Si no se encuentra el sitio web o la cuenta, no se realiza ninguna acción.
     // No es necesario devolver ningún valor explícito.
-}
+export async function actualizarCuenta(nombreWeb: string, usuario: string, nuevaContrasenia: string): Promise<void> {
+        const db = await abrirConexion();
+        
+        const query = `UPDATE Cuenta SET contrasenia = ? WHERE nombreWeb = ? AND usuario = ?`;
+        await db.run(query, [usuario, nuevaContrasenia, nombreWeb]);
+        
+        db.close();
+    }
 
-export async function borrarCuenta(nombreSitio: string, usuario: string): Promise<void> {
     // Encontramos el índice del sitio web en nuestra base de datos
     // Si se encuentra el sitio web,
     // buscamos la cuenta dentro de ese sitio y la eliminamos.
     // Si no se encuentra el sitio web o la cuenta, no se realiza ninguna acción.
     // No es necesario devolver ningún valor explícito.
+export async function borrarCuenta(nombreWeb: string, usuario: string): Promise<void> {
 }
+
+
 //async?
-export function obtenerContrasenia(nombreSitio: string, usuario: string, contraseniaMaestra: string): ResultadoBusquedaContrasenia<string> {
+export function obtenerContrasenia(nombreWeb: string, usuario: string, contraseniaMaestra: string): ResultadoBusquedaContrasenia<string> {
     // Desencriptar la base de datos utilizando la contraseña maestra
     // Buscar el sitio web en la base de datos
     // Buscar la cuenta dentro del sitio web
@@ -199,8 +208,9 @@ async function verificarContraseniaComprometida(contrasenia: string): Promise<bo
     }
 }
 
+//PARA EL FRONT
 /*
-async function testPassword() {
+async function addAccount() {
 
     const data = { 'usuario':"pepetest", 'nombreWeb':"instagram.com" };
 
@@ -223,4 +233,29 @@ async function testPassword() {
 }
 
 testPassword();*/
-    
+
+
+//PARA EL FRONT
+/*
+async function updatePassword() {
+    const data = { 'usuario': "jorgito", 'nombreWeb': "www.jorgelin.com" };
+
+    fetch('http://localhost:3000/v1/usuario/update', {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data)
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log('Éxito:', data);
+        console.log('Contraseña actualizada con éxito');
+    })
+    .catch((error) => {
+        console.error('Error:', error);
+        console.log('Error al actualizar la contraseña');
+    });
+}
+
+updatePassword();*/

@@ -65,9 +65,26 @@ app.post("/v1/listado/add-account", async (req: Request, res: Response) => {
 });
 
 //actualizar la contraseña
-app.put ("/v1/usuario/update", (req: Request, res: Response)=>{
+/*app.put ("/v1/usuario/update", (req: Request, res: Response)=>{
     res.send("Hola mundo, it's me con ganas de llorar pero con /usuario/actualizar!");
+});*/
+
+app.put("/v1/usuario/update", async (req: Request, res: Response) => {
+    const {usuario, nombreWeb} = req.body;
+
+    if (!nombreWeb || !usuario) {
+        return res.status(400).send({ error: "Todos los campos son obligatorios" });
+    }
+
+    try {
+        await actualizarCuenta(usuario, generarContraseniaSegura(), nombreWeb);
+        res.status(200).send({ message: "Contraseña actualizada con éxito" });
+    } catch (error) {
+        console.error('Error al actualizar la contraseña:', error);
+        res.status(500).send({ error: 'Error al actualizar la cuenta' });
+    }
 });
+
 
 app.listen(port, () => {
     console.log(`[server]: Servidor iniciado en http://localhost:${port}`);
