@@ -22,12 +22,12 @@ type ResultadoBusquedaContrasenia<T> =
         | { tipo: "exito", encontrado: T }
         | { tipo: "no_encontrado" }
 
-    function formatearResultado<T>(resultado: ResultadoBusquedaContrasenia<T>): string {
+function formatearResultado<T>(resultado: ResultadoBusquedaContrasenia<T>): string {
         if (resultado.tipo === "exito")
             return `Se encontro a ${resultado.encontrado}`;
         else
             return `No se encontro nada`;
-    }
+}
 
 async function abrirConexion() {
     return open({
@@ -37,21 +37,6 @@ async function abrirConexion() {
 }
 
 //  CRUD
-/*
-
-export async function agregarCuenta(nombreWeb: string, usuario: string, contrasenia: string): Promise<Cuenta> {
-    // Comprobamos si el sitio web ya existe en nuestra base de datos
-    // Si el sitio web ya existe, agregamos la nueva cuenta a ese sitio.
-    // De lo contrario, creamos un nuevo sitio web con la nueva cuenta.
-    const db = await abrirConexion(); // cada vez que nos queramos comunicar con la base de datos abrimos la conexion.
-    
-    const query = `INSERT INTO Cuenta (usuario, contrasenia, nombreWeb) VALUES (${usuario}, ${contrasenia}, ${nombreWeb})`;
-    await db.run(query);
-
-    return { nombreWeb, usuario, contrasenia };
-}
-*/
-
 export async function agregarCuenta(usuario: string, contrasenia: string, nombreWeb: string): Promise<Cuenta> {
     const db = await abrirConexion(); // Asegúrate de que esta función maneja correctamente la conexión.
 
@@ -74,13 +59,14 @@ export async function consultarListado(): Promise<Cuenta[]> {
 }
 
 
- // Buscamos el sitio web en nuestra base de datos
+
+export async function actualizarCuenta(nombreWeb: string, usuario: string, nuevaContrasenia: string): Promise<void> {
+     // Buscamos el sitio web en nuestra base de datos
     // Si el sitio web existe y la cuenta también,
     // actualizamos la contraseña de esa cuenta.
     // Si no se encuentra el sitio web o la cuenta, no se realiza ninguna acción.
-    // No es necesario devolver ningún valor explícito.
-export async function actualizarCuenta(nombreWeb: string, usuario: string, nuevaContrasenia: string): Promise<void> {
-        const db = await abrirConexion();
+    // No es necesario devolver ningún valor explícito.    
+    const db = await abrirConexion();
         
         const query = `UPDATE Cuenta SET contrasenia = ? WHERE nombreWeb = ? AND usuario = ?`;
         await db.run(query, [usuario, nuevaContrasenia, nombreWeb]);
@@ -88,26 +74,16 @@ export async function actualizarCuenta(nombreWeb: string, usuario: string, nueva
         db.close();
     }
 
-    // Encontramos el índice del sitio web en nuestra base de datos
+/* BORRAR CUENTA  
+export async function borrarCuenta(nombreWeb: string, usuario: string): Promise<void> {
+// Encontramos el índice del sitio web en nuestra base de datos
     // Si se encuentra el sitio web,
     // buscamos la cuenta dentro de ese sitio y la eliminamos.
     // Si no se encuentra el sitio web o la cuenta, no se realiza ninguna acción.
     // No es necesario devolver ningún valor explícito.
-export async function borrarCuenta(nombreWeb: string, usuario: string): Promise<void> {
-}
+}*/
 
-
-//async?
-export function obtenerContrasenia(nombreWeb: string, usuario: string, contraseniaMaestra: string): ResultadoBusquedaContrasenia<string> {
-    // Desencriptar la base de datos utilizando la contraseña maestra
-    // Buscar el sitio web en la base de datos
-    // Buscar la cuenta dentro del sitio web
-    // Devolver la contraseña si se encuentra, de lo contrario, devolver null
-    return { tipo: "no_encontrado" }; // Devuelve "no encontrado" cuando no se encuentra
-}
-//Encriptar archivo de base de datos de forma segura
-const secretKey = 'alagrandelepusecuca';
-
+//ENCRIPTACION DB
 export async function encriptarArchivo(rutaArchivo: string, contrasenia_maestra: string): Promise<void> {
     try {
         // Leer el contenido del archivo
@@ -124,6 +100,17 @@ export async function encriptarArchivo(rutaArchivo: string, contrasenia_maestra:
         console.error('Error al encriptar el archivo:', error);
     }
 }
+
+// DESENCRIPTAR DB CON CONTRASEÑA MAESTRA async?
+export function obtenerContrasenia(nombreWeb: string, usuario: string, contraseniaMaestra: string): ResultadoBusquedaContrasenia<string> {
+    // Desencriptar la base de datos utilizando la contraseña maestra
+    // Buscar el sitio web en la base de datos
+    // Buscar la cuenta dentro del sitio web
+    // Devolver la contraseña si se encuentra, de lo contrario, devolver null
+    return { tipo: "no_encontrado" }; // Devuelve "no encontrado" cuando no se encuentra
+}
+//Encriptar archivo de base de datos de forma segura
+const secretKey = 'alagrandelepusecuca';
 
 // Ejemplo de uso
 const rutaArchivo = 'archivo.txt';
