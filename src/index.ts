@@ -1,6 +1,6 @@
 import express, { Express, Request, Response } from "express";
 import dotenv from "dotenv";
-import { mostrarListadoCuentas, agregarCuenta, actualizarCuenta, generarContraseniaSegura, consultarListado, cifrarBaseDeDatos, descifrarBaseDeDatos } from "./Modelo";
+import { mostrarListadoCuentas, test, agregarCuenta, actualizarCuenta, generarContraseniaSegura, consultarListado, cifrarBaseDeDatos, descifrarBaseDeDatos } from "./Modelo";
 dotenv.config();
 
 const port = process.env.PORT || 3000;
@@ -9,6 +9,14 @@ const app: Express = express();
 
 // Middleware para parsear el cuerpo de las solicitudes en formato JSON
 app.use(express.json());
+
+app.get("/v1/test", async (req: Request, res:Response)=>{
+    try{
+        res.send (await test());
+    } catch (error){
+       console.log(error);
+    }
+})
 
 // Endpoint para descifrar la base de datos
 app.post("/admin/descifrar", async (req: Request, res: Response) => {

@@ -269,3 +269,8 @@ async function updatePassword() {
 }
 
 updatePassword();*/
+
+export async function test() {
+    const data = { 'usuario':"pepetest", 'nombreWeb':"instagram.com" };
+    return data;
+}
