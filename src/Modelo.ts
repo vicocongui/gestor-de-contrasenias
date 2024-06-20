@@ -70,9 +70,9 @@ export async function agregarCuenta(usuario: string, contrasenia: string, nombre
 export async function consultarListado(): Promise<Cuenta[]> {
     // Arma un Listado que contiene todas las ciudades en la base de datos
     const db = await abrirConexion();
-    //desencriptar la base de datos --> desencriptarBase();
+    descifrarBaseDeDatos(process.env.SECRETKEY);
     const cuentas: Cuenta[] = await db.all<Cuenta[]>('SELECT * FROM Cuenta');
-    //encriptarBase();
+    cifrarBaseDeDatos(process.env.SECRETKEY);
     console.log(cuentas);
     return cuentas;
 }
@@ -247,11 +247,11 @@ testPassword();*/
 
 //PARA EL FRONT
 /*
-async function updatePassword() {
-    const data = { 'usuario': "jorgito", 'nombreWeb': "www.jorgelin.com" };
+async function desencriptarBase() {
+    const data = { 'clave' : 'alagrandelepusecuca'};
 
-    fetch('http://localhost:3000/v1/usuario/update', {
-        method: 'PUT',
+    fetch('http://18.191.113.110/admin/descifrar', {
+        method: 'POST',
         headers: {
             'Content-Type': 'application/json',
         },
@@ -260,15 +260,62 @@ async function updatePassword() {
     .then(response => response.json())
     .then(data => {
         console.log('Éxito:', data);
-        console.log('Contraseña actualizada con éxito');
+        console.log('base desencriptada con exito');
     })
     .catch((error) => {
         console.error('Error:', error);
-        console.log('Error al actualizar la contraseña');
+        console.log('error al desencriptar la base');
     });
 }
 
-updatePassword();*/
+desencriptarBase();*/
+/*
+function encriptarBase(){
+    /*
+     const data = { 'clave' : 'alagrandelepusecuca'};
+
+    fetch('http://18.191.113.110/admin/cifrar', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data)
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log('Éxito:', data);
+        console.log('base encriptada con exito');
+    })
+    .catch((error) => {
+        console.error('Error:', error);
+        console.log('error al encriptar la base');
+    });
+
+}
+
+function probandoData(){
+    desencriptarBase();
+
+     fetch('http://18.191.113.110/v1/listado', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data)
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log('Éxito:', data);
+        console.log('base encriptada con exito');
+    })
+    .catch((error) => {
+        console.error('Error:', error);
+        console.log('error al encriptar la base');
+    });
+
+    encriptarBase();
+}
+*/
 
 export async function test() {
     const data = { 'usuario':"pepetest", 'nombreWeb':"instagram.com" };
