@@ -141,12 +141,12 @@ const contraseniaMaestra = 'mi_contrasenia_maestra';
 
 // Desencriptar la base de datos antes de acceder a las contraseñas
 // Ejemplo de cómo obtener la contraseña de una cuenta específica
-const contraseniaCuenta = obtenerContrasenia('Ejemplo', 'usuario1', contraseniaMaestra);
+/*const contraseniaCuenta = obtenerContrasenia('Ejemplo', 'usuario1', contraseniaMaestra);
 if (contraseniaCuenta) {
     console.log(`La contraseña de la cuenta es: ${contraseniaCuenta}`);
 } else {
     console.log('La cuenta no se encuentra o la contraseña maestra es incorrecta.');
-}
+}*/
 
 //generar contraseña segura
 export const generarContraseniaSegura = (): string => {
