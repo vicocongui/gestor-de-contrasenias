@@ -39,7 +39,7 @@ async function abrirConexion() {
 }
 
 //  CRUD
-
+/*
 export async function cifrarBaseDeDatos(clave: string = secretKey) {
     const contenido = fs.readFileSync('db.sqlite', 'utf8');
     const contenidoCifrado = CryptoJS.AES.encrypt(contenido, clave).toString();
@@ -53,7 +53,7 @@ export async function descifrarBaseDeDatos(clave: string = secretKey) {
     const bytes = CryptoJS.AES.decrypt(contenidoCifrado, clave);
     const contenidoDescifrado = bytes.toString(CryptoJS.enc.Utf8);
     fs.writeFileSync('db.sqlite', contenidoDescifrado);
-}
+}*/
 
 
 export async function agregarCuenta(usuario: string, contrasenia: string, nombreWeb: string): Promise<Cuenta> {
@@ -70,9 +70,9 @@ export async function agregarCuenta(usuario: string, contrasenia: string, nombre
 export async function consultarListado(): Promise<Cuenta[]> {
     // Arma un Listado que contiene todas las ciudades en la base de datos
     const db = await abrirConexion();
-    descifrarBaseDeDatos(process.env.SECRETKEY);
+    //descifrarBaseDeDatos(process.env.SECRETKEY);
     const cuentas: Cuenta[] = await db.all<Cuenta[]>('SELECT * FROM Cuenta');
-    cifrarBaseDeDatos(process.env.SECRETKEY);
+    //cifrarBaseDeDatos(process.env.SECRETKEY);
     console.log(cuentas);
     return cuentas;
 }
