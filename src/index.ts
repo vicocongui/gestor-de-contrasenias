@@ -1,17 +1,16 @@
 import express, { Express, Request, Response } from "express";
 import dotenv from "dotenv";
-import { mostrarListadoCuentas, test, agregarCuenta, actualizarCuenta, generarContraseniaSegura, consultarListado } from "./Modelo";
+import { test, agregarCuenta, actualizarCuenta, generarContraseniaSegura, consultarListado } from "./Modelo";
 dotenv.config();
-import * as cors from 'cors';
-const corsMiddleware: typeof cors = require('cors');
-
+import cors from 'cors';
 
 const port = process.env.PORT || 3000;
 
 const app: Express = express();
 
 // Middleware para parsear el cuerpo de las solicitudes en formato JSON
-app.use(express.json());
+//app.use(express.json());
+
 app.use(cors());
 
 app.get("/v1/test", async (req: Request, res:Response)=>{
