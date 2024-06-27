@@ -24,7 +24,7 @@ app.get("/v1/test", async (req: Request, res:Response)=>{
 
 // Endpoint para descifrar la base de datos
 app.post("/admin/descifrar", async (req: Request, res: Response) => {
-    const { clave } = req.body;
+    //const { clave } = req.body;
     try {
        // await descifrarBaseDeDatos(clave);
         res.status(200).send({ message: "Base de datos descifrada con éxito." });
@@ -36,7 +36,7 @@ app.post("/admin/descifrar", async (req: Request, res: Response) => {
 
 // Endpoint para cifrar la base de datos
 app.post("/admin/cifrar", async (req: Request, res: Response) => {
-    const { clave } = req.body;
+    //const { clave } = req.body;
     try {
        // await cifrarBaseDeDatos(clave);
         res.status(200).send({ message: "Base de datos cifrada con éxito." });
