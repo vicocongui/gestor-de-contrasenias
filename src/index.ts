@@ -1,9 +1,8 @@
 import express, { Express, Request, Response } from "express";
 import dotenv from "dotenv";
 import { mostrarListadoCuentas, test, agregarCuenta, actualizarCuenta, generarContraseniaSegura, consultarListado } from "./Modelo";
-dotenv.config();
 import cors from "cors";
-// ...
+dotenv.config();
 
 const port = process.env.PORT || 3000;
 
