@@ -48,7 +48,7 @@ app.post("/v1/listado", async (req: Request, res: Response) => {
     try {
         res.send(await consultarListado());
     } catch (error) {
-        console.log("se rompido el post base de datos");
+        console.log("se rompido el post base de datos", error);
     }
 });
 
@@ -90,6 +90,7 @@ app.put("/v1/usuario/update", async (req: Request, res: Response) => {
         res.status(500).send({ error: 'Error al actualizar la cuenta' });
     }
 });
+
 
 
 app.listen(port, () => {
